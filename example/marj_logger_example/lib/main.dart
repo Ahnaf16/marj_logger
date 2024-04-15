@@ -61,7 +61,9 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Logger.showHistory(context);
+        },
         tooltip: 'History',
         child: const Icon(Icons.history_rounded),
       ),

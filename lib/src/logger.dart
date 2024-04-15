@@ -7,6 +7,7 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 typedef LogOutput = void Function(dynamic msg);
 
+// TODO : better marge [TalkerConfig] with [Logger] in the future
 class TalkerConfig {
   TalkerConfig({
     bool enable = true,
@@ -85,14 +86,34 @@ class Logger {
     _log(obj, name);
   }
 
-  Logger.init({TalkerConfig? talkerConfig}) {
-    _talkerConfig = talkerConfig ?? TalkerConfig();
+  Logger.init({
+    bool enable = true,
+    bool logOnConsole = true,
+    LogOutput? output,
+    LoggerFormatter formatter = const _SimpleLogFormatter(),
+    String logPrefix = '\u276f_',
+    TalkerDioLoggerSettings? dioLoggerSettings,
+    bool fullHistory = false,
+  }) {
+    _talkerConfig = TalkerConfig(
+      enable: enable,
+      logOnConsole: logOnConsole,
+      output: output,
+      formatter: formatter,
+      logPrefix: logPrefix,
+      dioLoggerSettings: dioLoggerSettings,
+      fullHistory: fullHistory,
+    );
   }
 
   static TalkerConfig _talkerConfig = TalkerConfig();
 
   static json(response, [String name = 'JSON']) {
     _log(_prettyJSON(response), name, true);
+  }
+
+  static void showHistory(BuildContext context) {
+    _talkerConfig.openLogHistory(context);
   }
 
   static void critical(dynamic msg, [Object? error, StackTrace? stackTrace]) {
