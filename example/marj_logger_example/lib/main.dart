@@ -37,13 +37,13 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FilledButton(
+            Button(
               onPressed: () {
                 Logger('This is a normal log');
               },
-              child: const Text('Normal LOG'),
+              label: 'Normal LOG',
             ),
-            FilledButton(
+            Button(
               onPressed: () {
                 final map = {
                   'key1': 'value1',
@@ -55,8 +55,16 @@ class MyHomePage extends StatelessWidget {
                 };
                 Logger.json(map);
               },
-              child: const Text('JSON LOG'),
+              label: 'JSON LOG',
             ),
+            Button(
+                label: 'Critical',
+                onPressed: () => Logger.critical('Critical')),
+            Button(label: 'Error', onPressed: () => Logger.error('Error')),
+            Button(
+                label: 'Warning', onPressed: () => Logger.warning('Warning')),
+            Button(label: 'Info', onPressed: () => Logger.info('Info')),
+            Button(label: 'Debug', onPressed: () => Logger.debug('Debug')),
           ],
         ),
       ),
@@ -66,6 +74,31 @@ class MyHomePage extends StatelessWidget {
         },
         tooltip: 'History',
         child: const Icon(Icons.history_rounded),
+      ),
+    );
+  }
+}
+
+class Button extends StatelessWidget {
+  const Button({
+    super.key,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final void Function()? onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: onPressed,
+          child: Text(label),
+        ),
       ),
     );
   }
