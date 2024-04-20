@@ -3,7 +3,7 @@ import 'package:marj_logger/marj_logger.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Logger.init();
+  Logger.configure(fullHistory: true);
   runApp(const MyApp());
 }
 
@@ -64,13 +64,12 @@ class MyHomePage extends StatelessWidget {
             Button(
                 label: 'Warning', onPressed: () => Logger.warning('Warning')),
             Button(label: 'Info', onPressed: () => Logger.info('Info')),
-            Button(label: 'Debug', onPressed: () => Logger.debug('Debug')),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Logger.showHistory(context);
+          Logger.openHistory(context);
         },
         tooltip: 'History',
         child: const Icon(Icons.history_rounded),
