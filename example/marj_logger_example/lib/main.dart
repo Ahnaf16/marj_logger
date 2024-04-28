@@ -64,12 +64,16 @@ class MyHomePage extends StatelessWidget {
             Button(
                 label: 'Warning', onPressed: () => Logger.warning('Warning')),
             Button(label: 'Info', onPressed: () => Logger.info('Info')),
+            Button(
+              label: 'M LOG',
+              onPressed: () => MLogger().info('LOG\nLOG2', 'M LOG'),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Logger.openHistory(context);
+          MLogger().openLogHistory(context);
         },
         tooltip: 'History',
         child: const Icon(Icons.history_rounded),
