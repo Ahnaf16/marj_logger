@@ -5,7 +5,13 @@ import 'package:logger/logger.dart';
 import 'package:marj_logger/src_new/log_screen.dart';
 
 class MLogger {
-  // final _history = LogHistory();
+  static final MLogger _instance = MLogger._internal();
+
+  factory MLogger() {
+    return _instance;
+  }
+
+  MLogger._internal();
 
   final List<OutputEvent> history = [];
 
