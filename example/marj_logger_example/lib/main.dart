@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -38,42 +39,35 @@ class MyHomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Button(
+              label: 'No history',
               onPressed: () {
-                Logger('This is a normal log');
+                MLogger('No history', 'M LOG');
               },
-              label: 'Normal LOG',
             ),
             Button(
+              label: 'History',
               onPressed: () {
-                final map = {
-                  'key1': 'value1',
-                  'key2': 'value2',
-                  'key3': {
-                    'key4': 'value4',
-                    'key5': ['value5', 'value6'],
-                  },
-                };
-                Logger.json(map);
+                MLogger.info('History', 'M LOG');
               },
-              label: 'JSON LOG',
             ),
             Button(
-                label: 'Critical',
-                onPressed: () => Logger.critical('Critical')),
-            Button(label: 'Error', onPressed: () => Logger.error('Error')),
+              label: 'Error',
+              onPressed: () {
+                MLogger.error('ERROR', 'M LOG');
+              },
+            ),
             Button(
-                label: 'Warning', onPressed: () => Logger.warning('Warning')),
-            Button(label: 'Info', onPressed: () => Logger.info('Info')),
-            Button(
-              label: 'M LOG',
-              onPressed: () => MLogger().info('LOG\nLOG2', 'M LOG'),
+              label: 'JSON',
+              onPressed: () {
+                MLogger.json(jsonData);
+              },
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          MLogger().openLogHistory(context);
+          MLogger.openLogHistory(context);
         },
         tooltip: 'History',
         child: const Icon(Icons.history_rounded),
@@ -106,3 +100,14 @@ class Button extends StatelessWidget {
     );
   }
 }
+
+final jsonData = {
+  "name": "John",
+  "age": 30,
+  "address": {
+    "street": "Main St",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10001"
+  }
+};

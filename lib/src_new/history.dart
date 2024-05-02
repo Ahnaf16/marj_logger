@@ -1,11 +1,13 @@
 import 'package:logger/logger.dart';
+import 'package:marj_logger/marj_logger.dart';
+import 'package:marj_logger/src_new/log_data.dart';
 
 class LogHistory implements History {
-  LogHistory({List<OutputEvent>? history}) {
+  LogHistory({List<LogData>? history}) {
     if (history != null) _history.addAll(history);
   }
 
-  final _history = <OutputEvent>[];
+  final _history = <LogData>[];
 
   @override
   void clean() {
@@ -13,22 +15,32 @@ class LogHistory implements History {
   }
 
   @override
-  List<OutputEvent> get history => _history;
+  List<LogData> get history => _history;
 
   @override
-  void write(OutputEvent data) {
+  void write(LogData data) {
     if (limit <= _history.length) _history.removeAt(0);
 
     _history.add(data);
+  }
+
+  void writeFromEvent(OutputEvent ev, String name) {
+    final data = LogData(
+      level: LogUtil.logLevelByLevel(ev.level),
+      lines: ev.lines,
+      name: name,
+      time: DateTime.now(),
+    );
+    write(data);
   }
 
   int get limit => 100;
 }
 
 abstract class History {
-  List<OutputEvent> get history;
+  List<LogData> get history;
 
   void clean();
 
-  void write(OutputEvent data);
+  void write(LogData data);
 }
