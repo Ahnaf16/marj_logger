@@ -9,15 +9,35 @@ import 'package:marj_logger/src_new/log_screen.dart';
 enum LogLevel { info, debug, error, json }
 
 class LogConfig {
-  final bool enable = true;
-  final bool fullHistory = false;
-  final Function(String msg) logMethod = defLogMethod;
-  final bool logOnConsole = true;
-  final List<LogLevel> writeHistoryFor = [
-    LogLevel.info,
-    LogLevel.error,
-    LogLevel.json
-  ];
+  LogConfig({
+    this.enable = true,
+    this.fullHistory = false,
+    this.logMethod = defLogMethod,
+    this.logOnConsole = true,
+    this.writeHistoryFor = const [LogLevel.info, LogLevel.error, LogLevel.json],
+  });
+
+  final bool enable;
+  final bool fullHistory;
+  final Function(String msg) logMethod;
+  final bool logOnConsole;
+  final List<LogLevel> writeHistoryFor;
+
+  LogConfig copyWith({
+    bool? enable,
+    bool? fullHistory,
+    Function(String msg)? logMethod,
+    bool? logOnConsole,
+    List<LogLevel>? writeHistoryFor,
+  }) {
+    return LogConfig(
+      enable: enable ?? this.enable,
+      fullHistory: fullHistory ?? this.fullHistory,
+      logMethod: logMethod ?? this.logMethod,
+      logOnConsole: logOnConsole ?? this.logOnConsole,
+      writeHistoryFor: writeHistoryFor ?? this.writeHistoryFor,
+    );
+  }
 
   static defLogMethod(v) => log(v, name: '\u276f_');
 }
@@ -30,8 +50,24 @@ class MLogger {
 
   MLogger._internal();
 
+  MLogger.initiate({
+    bool? enable,
+    bool? fullHistory,
+    Function(String msg)? logMethod,
+    bool? logOnConsole,
+    List<LogLevel>? writeHistoryFor,
+  }) {
+    _config = _config.copyWith(
+      enable: enable,
+      fullHistory: fullHistory,
+      logMethod: logMethod,
+      logOnConsole: logOnConsole,
+      writeHistoryFor: writeHistoryFor,
+    );
+  }
+
+  static LogConfig _config = LogConfig();
   static final _history = LogHistory();
-  static final LogConfig _config = LogConfig();
   static final MLogger _instance = MLogger._internal();
 
   static info(String info, [String name = 'INFO']) {
@@ -62,8 +98,9 @@ class MLogger {
       );
 
   static _log(String log, LogLevel l, [String name = 'LOG']) {
-    final logger = _buildLogger(name, l);
+    if (!_config.enable) return;
 
+    final logger = _buildLogger(name, l);
     logger.log(LogUtil.levelByLogLevel(l), log);
   }
 
@@ -71,12 +108,12 @@ class MLogger {
     String name,
     LogLevel l,
   ) {
-    final write = _config.writeHistoryFor.contains(l);
+    final write = _config.writeHistoryFor.contains(l) || _config.fullHistory;
     return Logger(
       filter: null,
-      output: Output(
+      output: DefaultOutput(
         name: name,
-        logMethod: _config.logMethod,
+        config: _config,
         onOutput: (ev) {
           if (write) _history.writeFromEvent(ev, name);
         },
@@ -86,11 +123,11 @@ class MLogger {
   }
 }
 
-class Output extends LogOutput {
-  Output({
+class DefaultOutput extends LogOutput {
+  DefaultOutput({
     required this.name,
     required this.onOutput,
-    required this.logMethod,
+    required this.config,
   });
 
   static const bottomLeftCorner = '└';
@@ -99,25 +136,27 @@ class Output extends LogOutput {
   static const topLeftCorner = '┌';
   static const vertical = '│';
 
-  final Function(String log) logMethod;
+  final LogConfig config;
   final String name;
   final Function(OutputEvent event) onOutput;
 
   @override
   void output(OutputEvent event) {
-    String getLine(String? corner, String divider) =>
-        LogUtil.getLine(120, event.level, corner, divider);
+    if (config.logOnConsole) {
+      String getLine(String? corner, String divider) =>
+          LogUtil.getLine(120, event.level, corner, divider);
 
-    final top = getLine(topLeftCorner, doubleDivider);
-    final mid = getLine(bottomLeftCorner, singleDivider);
-    final bottom = getLine(bottomLeftCorner, doubleDivider);
+      final top = getLine(topLeftCorner, doubleDivider);
+      final mid = getLine(bottomLeftCorner, singleDivider);
+      final bottom = getLine(bottomLeftCorner, doubleDivider);
 
-    final title = '$vertical [$name] :: ${event.level.name}';
-    final eLines = event.lines.map((e) => '  $e');
+      final title = '$vertical [$name] :: ${event.level.name}';
+      final eLines = event.lines.map((e) => '  $e');
 
-    final lines = [top, title, mid, ...eLines, bottom];
+      final lines = [top, title, mid, ...eLines, bottom];
 
-    logMethod(lines.join('\n'));
+      config.logMethod(lines.join('\n'));
+    }
     onOutput(event);
   }
 }
@@ -131,6 +170,7 @@ class LogUtil {
     Level.error: const AnsiColor.fg(196),
     Level.fatal: const AnsiColor.fg(199),
   };
+
   static Level levelByLogLevel(LogLevel l) {
     return switch (l) {
       LogLevel.info => Level.info,

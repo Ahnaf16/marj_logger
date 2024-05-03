@@ -3,7 +3,9 @@ import 'package:marj_logger/marj_logger.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Logger.configure();
+  MLogger.initiate(
+    fullHistory: true,
+  );
   runApp(const MyApp());
 }
 
