@@ -15,6 +15,7 @@ class LogConfig {
     this.logMethod = defLogMethod,
     this.logOnConsole = true,
     this.writeHistoryFor = const [LogLevel.info, LogLevel.error, LogLevel.json],
+    this.consoleLogFor = LogLevel.values,
   });
 
   final bool enable;
@@ -22,6 +23,7 @@ class LogConfig {
   final Function(String msg) logMethod;
   final bool logOnConsole;
   final List<LogLevel> writeHistoryFor;
+  final List<LogLevel> consoleLogFor;
 
   LogConfig copyWith({
     bool? enable,
@@ -29,6 +31,7 @@ class LogConfig {
     Function(String msg)? logMethod,
     bool? logOnConsole,
     List<LogLevel>? writeHistoryFor,
+    List<LogLevel>? consoleLogFor,
   }) {
     return LogConfig(
       enable: enable ?? this.enable,
@@ -36,6 +39,7 @@ class LogConfig {
       logMethod: logMethod ?? this.logMethod,
       logOnConsole: logOnConsole ?? this.logOnConsole,
       writeHistoryFor: writeHistoryFor ?? this.writeHistoryFor,
+      consoleLogFor: consoleLogFor ?? this.consoleLogFor,
     );
   }
 
@@ -142,7 +146,10 @@ class DefaultOutput extends LogOutput {
 
   @override
   void output(OutputEvent event) {
-    if (config.logOnConsole) {
+    final l = LogUtil.logLevelByLevel(event.level);
+    final onConsol = config.consoleLogFor.contains(l) && config.logOnConsole;
+
+    if (onConsol) {
       String getLine(String? corner, String divider) =>
           LogUtil.getLine(120, event.level, corner, divider);
 
